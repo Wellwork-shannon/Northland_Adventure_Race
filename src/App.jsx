@@ -1,11 +1,10 @@
 import React from "react";
-import "./App.css";
 
-function App() {
+export default function App() {
   return (
     <div
       style={{
-        backgroundImage: "url('/publichero.jpg')",
+        backgroundImage: "url('/publichero.jpg')", // file in /public
         backgroundSize: "cover",
         backgroundPosition: "center",
         minHeight: "100vh",
@@ -15,27 +14,29 @@ function App() {
         justifyContent: "center",
         color: "#fff",
         textAlign: "center",
+        padding: "2rem",
       }}
     >
-      <h1>Northland Adventure Race</h1>
-      <p>
-        Corporate team-building experiences through a 2-hour Amazing Race-style
-        adventure in Whangārei and the wider Northland region.
+      <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+        Northland Adventure Race
+      </h1>
+      <p style={{ maxWidth: 800, marginBottom: "1.25rem" }}>
+        Corporate team building in Whangārei and across Northland. Tailored 2-hour
+        foot races that get teams thinking, laughing, and moving.
       </p>
-      <button
+      <a
+        href="#contact"
         style={{
-          padding: "10px 20px",
+          padding: "12px 20px",
           fontSize: "16px",
-          backgroundColor: "#ff6600",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
+          backgroundColor: "#059669",
+          color: "#fff",
+          borderRadius: "12px",
+          textDecoration: "none",
         }}
       >
-        Contact Us
-      </button>
+        Request a quote
+      </a>
     </div>
   );
 }
-
-export default App;
