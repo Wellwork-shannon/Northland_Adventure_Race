@@ -9,6 +9,9 @@ import React, { useMemo, useState } from "react";
  * - Uses current hero image at /publichero.jpg
  */
 
+// Formspree endpoint
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xovnqrbz";
+
 // Price helper with tests
 export function computeEstimateStrict(n) {
   const nn = Number(n);
@@ -41,31 +44,59 @@ export default function Site() {
   async function handleSubmit(e) {
     e.preventDefault();
     setSending(true);
+    try {
+      const fd = new FormData(e.currentTarget);
 
-    const fd = new FormData(e.currentTarget);
-    const addons = fd.getAll("AddOns[]");
+      // Collect add-ons into a single field for readability
+      const addons = fd.getAll("AddOns[]");
+      fd.append("AddOnsSummary", addons.join(", "));
 
-    const summary = [
-      `Name: ${fd.get("Name") || ""}`,
-      `Company: ${fd.get("Company") || ""}`,
-      `Email: ${fd.get("Email") || ""}`,
-      `Phone: ${fd.get("Phone") || ""}`,
-      `Group size: ${fd.get("GroupSize") || ""}`,
-      `Race style: ${fd.get("RaceStyle") || ""}`,
-      `Preferred date: ${fd.get("PreferredDate") || ""}`,
-      `Location: ${fd.get("Location") || ""}`,
-      `Add-ons: ${addons.join(", ") || "None"}`,
-      estimate ? `Estimated total (min 10, excludes add-ons): $${estimate} NZD` : "Estimated: ask for quote",
-      `Message: ${fd.get("Message") || ""}`,
-    ].join("\n");
+      // Ensure Formspree receives an "email" field
+      if (!fd.get("email")) fd.append("email", fd.get("Email") || "");
 
-    // Demo success for now; replace with POST to your endpoint later.
-    await new Promise((r) => setTimeout(r, 500));
-    console.log(summary);
-    setStatus("Thanks. We received your enquiry. We will be in touch.");
-    e.currentTarget.reset();
-    setGroupSize("");
-    setSending(false);
+      // Optional subject shown in Formspree notifications
+      fd.append("_subject", "New Northland Adventure Race enquiry");
+
+      // Human readable summary
+      const est = computeEstimateStrict(parseInt(fd.get("GroupSize") || "0", 10));
+      const note = [
+        `Name: ${fd.get("Name") || ""}`,
+        `Company: ${fd.get("Company") || ""}`,
+        `Email: ${fd.get("Email") || ""}`,
+        `Phone: ${fd.get("Phone") || ""}`,
+        `Group size: ${fd.get("GroupSize") || ""}`,
+        `Race style: ${fd.get("RaceStyle") || ""}`,
+        `Preferred date: ${fd.get("PreferredDate") || ""}`,
+        `Location: ${fd.get("Location") || ""}`,
+        `Add-ons: ${addons.join(", ") || "None"}`,
+        est ? `Estimated total (min 10, excludes add-ons): $${est} NZD` : "Estimated: ask for quote",
+        `Message: ${fd.get("Message") || ""}`,
+      ].join("\n");
+      fd.append("Summary", note);
+
+      // Send to Formspree
+      const resp = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: fd,
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        const msg = data?.errors?.[0]?.message || "Send failed. Please try again.";
+        throw new Error(msg);
+      }
+
+      setStatus("Thanks. We received your enquiry. We will be in touch.");
+      e.currentTarget.reset();
+      setGroupSize("");
+      setTimeout(() => setStatus(""), 6000);
+    } catch (err) {
+      console.error(err);
+      setStatus("Sorry, something went wrong. Please try again or call 022 515 5501.");
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
