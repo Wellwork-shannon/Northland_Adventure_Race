@@ -197,7 +197,7 @@ export default function Site() {
           <p className="mt-3 text-slate-700">Pricing: $110 per person. Minimum 10 participants. Smaller teams may be available on request.{estimate ? (<><span> | Estimated total (excludes add-ons): ${estimate} NZD</span></>) : null}</p>
 
           {/* quick contact alongside the form */}
-          <div className="mt-2 text-slate-700 text-sm">Prefer to talk? Call <a href="tel:64211224662" className="underline">021 122 4662</a> or email <a href="mailto:Kiaora@northlandadventurerace.co.nz" className="underline">Kiaora@northlandadventurerace.nz</a>.</div>
+          <div className="mt-2 text-slate-700 text-sm">Prefer to talk? Call <a href="tel:64211224662" className="underline">021 122 4662</a> or email <a href="mailto:Kiaora@northlandadventurerace.co.nz" className="underline">Kiaora@northlandadventurerace.co.nz</a>.</div>
 
           <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4">
             <div className="grid md:grid-cols-2 gap-4">
