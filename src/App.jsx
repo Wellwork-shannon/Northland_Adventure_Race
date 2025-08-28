@@ -44,15 +44,13 @@ export default function Site() {
   async function handleSubmit(e) {
     e.preventDefault();
     setSending(true);
+    setStatus("");
     try {
       const fd = new FormData(e.currentTarget);
 
       // Collect add-ons into a single field for readability
-      const addons = fd.getAll("AddOns[]");
+      const addons = fd.getAll("addons");
       fd.append("AddOnsSummary", addons.join(", "));
-
-      // Ensure Formspree receives an "email" field
-      if (!fd.get("email")) fd.append("email", fd.get("Email") || "");
 
       // Optional subject shown in Formspree notifications
       fd.append("_subject", "New Northland Adventure Race enquiry");
@@ -62,7 +60,7 @@ export default function Site() {
       const note = [
         `Name: ${fd.get("Name") || ""}`,
         `Company: ${fd.get("Company") || ""}`,
-        `Email: ${fd.get("Email") || ""}`,
+        `Email: ${fd.get("email") || ""}`,
         `Phone: ${fd.get("Phone") || ""}`,
         `Group size: ${fd.get("GroupSize") || ""}`,
         `Race style: ${fd.get("RaceStyle") || ""}`,
@@ -81,8 +79,14 @@ export default function Site() {
         body: fd,
       });
 
-      if (!resp.ok) {
-        const data = await resp.json().catch(() => ({}));
+      let data;
+      try {
+        data = await resp.json();
+      } catch {
+        throw new Error(`Formspree response ${resp.status}`);
+      }
+
+      if (!resp.ok || !data?.ok) {
         const msg = data?.errors?.[0]?.message || "Send failed. Please try again.";
         throw new Error(msg);
       }
@@ -92,7 +96,7 @@ export default function Site() {
       setGroupSize("");
       setTimeout(() => setStatus(""), 6000);
     } catch (err) {
-      console.error(err);
+      console.error("Form submit error:", err);
       setStatus("Sorry, something went wrong. Please try again or call 022 515 5501.");
     } finally {
       setSending(false);
@@ -225,20 +229,36 @@ export default function Site() {
           <p className="mt-2 text-slate-700">Tell us about your team and preferred date. We tailor the experience and send a quote.</p>
 
           {/* live estimate */}
-          <p className="mt-3 text-slate-700">Pricing: $110 per person. Minimum 10 participants. Smaller teams may be available on request.{estimate ? (<><span> | Estimated total (excludes add-ons): ${estimate} NZD</span></>) : null}</p>
+          <p className="mt-3 text-slate-700">
+            Pricing: $110 per person. Minimum 10 participants. Smaller teams may be available on request.
+            {estimate ? (<><span> | Estimated total (excludes add-ons): ${estimate} NZD</span></>) : null}
+          </p>
 
           {/* quick contact alongside the form */}
-          <div className="mt-2 text-slate-700 text-sm">Prefer to talk? Call <a href="tel:64225155501" className="underline">022 515 5501</a> or email <a href="mailto:Kiaora@northlandadventurerace.co.nz" className="underline">Kiaora@northlandadventurerace.co.nz</a>.</div>
+          <div className="mt-2 text-slate-700 text-sm">
+            Prefer to talk? Call <a href="tel:64225155501" className="underline">022 515 5501</a> or email <a href="mailto:Kiaora@northlandadventurerace.co.nz" className="underline">Kiaora@northlandadventurerace.co.nz</a>.
+          </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4">
+          <form
+            action={FORMSPREE_ENDPOINT}
+            method="POST"
+            onSubmit={handleSubmit}
+            className="mt-6 grid grid-cols-1 gap-4"
+          >
             <div className="grid md:grid-cols-2 gap-4">
               <Input name="Name" label="Your name" required />
               <Input name="Company" label="Company or group" />
             </div>
             <div className="grid md:grid-cols-3 gap-4">
-              <Input type="email" name="Email" label="Email" required />
+              <Input type="email" name="email" label="Email" required />
               <Input name="Phone" label="Phone" />
-              <Input name="GroupSize" label="Approx. group size" inputMode="numeric" pattern="[0-9]*" onChange={(e) => setGroupSize(e.target.value)} />
+              <Input
+                name="GroupSize"
+                label="Approx. group size"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                onChange={(e) => setGroupSize(e.target.value)}
+              />
             </div>
             <div className="grid md:grid-cols-3 gap-4">
               <Select name="RaceStyle" label="Race style">
@@ -255,23 +275,35 @@ export default function Site() {
               <div className="grid md:grid-cols-3 gap-3 mt-2">
                 {["Catering","Medals/Awards","Photography or Videography","Team Merch","Bespoke Custom Race"].map((label) => (
                   <label key={label} className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" name="AddOns[]" value={label} />
+                    <input type="checkbox" name="addons" value={label} />
                     <span>{label}</span>
                   </label>
                 ))}
               </div>
             </fieldset>
 
-            <Textarea name="Message" label="Anything else we should know" placeholder="Goals, timing, accessibility needs, themes" />
+            <Textarea
+              name="Message"
+              label="Anything else we should know"
+              placeholder="Goals, timing, accessibility needs, themes"
+            />
 
             <div className="flex items-center gap-3">
-              <button type="submit" disabled={sending} className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium shadow hover:bg-emerald-700 disabled:opacity-60">{sending ? "Sending…" : "Send enquiry"}</button>
+              <button
+                type="submit"
+                disabled={sending}
+                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium shadow hover:bg-emerald-700 disabled:opacity-60"
+              >
+                {sending ? "Sending…" : "Send enquiry"}
+              </button>
               {status && <p className="text-sm text-emerald-700">{status}</p>}
             </div>
           </form>
 
           {/* SEO helper text, no bold */}
-          <p className="mt-6 text-slate-600 text-sm">Looking for an adventure race or Amazing Race Northland experience? We run team building races in Whangārei and across Northland. Search terms people use: adventure race Northland, team building Northland, Whangārei team building.</p>
+          <p className="mt-6 text-slate-600 text-sm">
+            Looking for an adventure race or Amazing Race Northland experience? We run team building races in Whangārei and across Northland. Search terms people use: adventure race Northland, team building Northland, Whangārei team building.
+          </p>
         </div>
       </section>
 
@@ -290,7 +322,10 @@ function Input({ label, className = "", ...props }) {
   return (
     <label className={`block ${className}`}>
       <span className="text-sm font-medium text-slate-800">{label}</span>
-      <input {...props} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      <input
+        {...props}
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
     </label>
   );
 }
@@ -299,7 +334,11 @@ function Textarea({ label, className = "", ...props }) {
   return (
     <label className={`block ${className}`}>
       <span className="text-sm font-medium text-slate-800">{label}</span>
-      <textarea {...props} rows={5} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      <textarea
+        {...props}
+        rows={5}
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
     </label>
   );
 }
@@ -308,7 +347,12 @@ function Select({ label, className = "", children, ...props }) {
   return (
     <label className={`block ${className}`}>
       <span className="text-sm font-medium text-slate-800">{label}</span>
-      <select {...props} className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">{children}</select>
+      <select
+        {...props}
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      >
+        {children}
+      </select>
     </label>
   );
 }
