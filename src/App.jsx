@@ -1,13 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 
-/**
- * Northland Adventure Race – One-page component
- * - Pricing note: "Add-ons available at additional cost."
- * - "Ready to race" shows only the phone/email line
- * - Removed small privacy/reply note under the submit button
- * - Web3Forms submission
- */
-
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 const WEB3FORMS_ACCESS_KEY = "f8b31566-8614-4321-9b57-09f40a9a2387";
 
@@ -17,7 +9,6 @@ export default function App() {
   const [groupSize, setGroupSize] = useState("");
   const redirectRef = useRef(null);
 
-  // If returning from Web3Forms with #sent, show success UI
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash === "#sent") {
       setStatus("Thanks. We received your enquiry. We will be in touch.");
@@ -31,15 +22,12 @@ export default function App() {
 
     const fd = new FormData(e.currentTarget);
 
-    // Build a nice AddOns summary (Web3Forms stores all fields as key/value)
     const addons = fd.getAll("AddOns[]");
     if (addons.length) fd.set("AddOnsSummary", addons.join(", "));
     else fd.set("AddOnsSummary", "None");
 
-    // Web3Forms required + helpful fields
     fd.set("access_key", WEB3FORMS_ACCESS_KEY);
     fd.set("subject", "New Northland Adventure Race enquiry");
-    // Ensure they have a plain "email" + reply-to
     if (!fd.get("email")) fd.set("email", fd.get("Email") || "");
     fd.set("from_name", fd.get("Name") || "Website Visitor");
     fd.set("replyto", fd.get("Email") || "");
@@ -54,14 +42,12 @@ export default function App() {
       const data = await resp.json();
 
       if (!data.success) {
-        // Surface the exact message Web3Forms returns
         throw new Error(data.message || "Send failed. Please try again.");
       }
 
       setStatus("Thanks. We received your enquiry. We will be in touch.");
       e.currentTarget.reset();
       setGroupSize("");
-      // optional client-side redirect after success
       if (redirectRef.current) {
         redirectRef.current.scrollIntoView({ behavior: "smooth" });
       }
@@ -103,7 +89,7 @@ export default function App() {
         <p className="mt-1">Add-ons available at additional cost.</p>
       </section>
 
-      {/* Ready to race (contact line only) */}
+      {/* Ready to race */}
       <section className="px-6 py-10 max-w-4xl mx-auto">
         <h2 className="text-2xl font-semibold">Ready to race?</h2>
         <p className="mt-2">
