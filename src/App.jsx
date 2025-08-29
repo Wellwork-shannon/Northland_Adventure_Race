@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 /**
- * Northland Adventure Race - One-page React component
- * Web3Forms + native POST (no JS fetch), no SEO text, no estimate
+ * Northland Adventure Race – One-page React component
+ * Minimal changes: cleaner copy, spacing, focus states, CTA discipline, a11y status
+ * Web3Forms native POST kept the same
  */
 
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
@@ -19,18 +20,14 @@ export default function App() {
     if (typeof window !== "undefined") {
       if (window.location.hash === "#sent") {
         setSent(true);
-        setStatus("Thanks, your enquiry was sent. We will be in touch.");
-        // Clear the hash so a refresh does not keep showing it
+        setStatus("Thanks. Your enquiry was sent. We will be in touch within one business day.");
         history.replaceState(null, "", window.location.pathname);
       }
-      // Fill redirect so Web3Forms sends the user back here with #sent
       const url = window.location.origin + window.location.pathname + "#sent";
       if (redirectRef.current) redirectRef.current.value = url;
     }
   }, []);
 
-  // When the form is submitted, we let the browser do a normal POST.
-  // We only flip the button to "Sending…" immediately so the user gets feedback.
   function handleNativeSubmit() {
     setSending(true);
     setStatus("");
@@ -41,16 +38,17 @@ export default function App() {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <a href="#hero" className="font-semibold">Northland Adventure Race</a>
+          <a href="#hero" className="font-semibold tracking-tight">Northland Adventure Race</a>
           <nav className="hidden md:flex gap-6 text-sm">
-            <a href="#styles" className="hover:text-emerald-600">Race Styles</a>
-            <a href="#inclusions" className="hover:text-emerald-600">Inclusions</a>
-            <a href="#locations" className="hover:text-emerald-600">Locations</a>
-            <a href="#contact" className="hover:text-emerald-600">Contact</a>
+            <a href="#styles" className="hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 rounded">Race styles</a>
+            <a href="#inclusions" className="hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 rounded">Inclusions</a>
+            <a href="#locations" className="hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 rounded">Locations</a>
+            <a href="#contact" className="hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600 rounded">Contact</a>
           </nav>
           <div className="flex items-center gap-2">
-            <a href="#locations" className="inline-flex items-center rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-white">Locations</a>
-            <a href="#contact" className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-sm font-medium shadow hover:bg-emerald-700">Plan your race</a>
+            <a href="#contact" className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-sm font-semibold shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+              Get a quote
+            </a>
           </div>
         </div>
       </header>
@@ -59,23 +57,31 @@ export default function App() {
       <section id="hero" className="relative">
         <div className="mx-auto max-w-6xl px-4 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
           <div>
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight">Corporate team building, reimagined</h1>
-            <p className="mt-4 text-lg text-slate-700">Whangārei and Northland wide | Tailored 2 hour foot races</p>
-            <p className="mt-6 text-slate-700">Get your team outdoors, thinking, laughing, and moving with immersive races that build connection and friendly competition.</p>
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight leading-tight">
+              2-hour Amazing Race for teams in Whangārei
+            </h1>
+            <p className="mt-4 text-lg text-slate-700 max-w-prose">
+              On-foot challenges that get people moving, thinking, and working together. Routes around the Town Basin or Northland by arrangement.
+            </p>
             <div className="mt-8 flex gap-3 flex-wrap">
-              <a href="#styles" className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium shadow hover:bg-emerald-700">See race styles</a>
-              <a href="#locations" className="inline-flex items-center rounded-xl border border-slate-300 px-5 py-3 font-medium hover:bg-white">View locations</a>
-              <a href="#contact" className="inline-flex items-center rounded-xl border border-slate-300 px-5 py-3 font-medium hover:bg-white">Request a quote</a>
+              <a href="#styles" className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-semibold shadow hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                See race styles
+              </a>
+              <a href="#locations" className="inline-flex items-center rounded-xl border border-slate-300 px-5 py-3 font-semibold hover:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                View locations
+              </a>
             </div>
-            <p className="mt-4 text-slate-700">Pricing: $110 per person. Minimum 10 participants. Smaller teams may be available on request.</p>
+            <p className="mt-6 text-slate-800 font-semibold">Pricing</p>
+            <p className="text-slate-700">NZD $110 per person. Minimum 10 participants.</p>
             <p className="text-slate-600 text-sm">Add-ons are optional and charged in addition to the base price.</p>
           </div>
 
-          {/* Image panel: uses /public/publichero.jpg */}
+          {/* Image panel: uses /publichero.jpg */}
           <div
             className="aspect-[4/3] rounded-3xl shadow-xl bg-cover bg-center"
             style={{ backgroundImage: "url('/publichero.jpg')" }}
-            aria-label="Northland scenery"
+            role="img"
+            aria-label="Teams racing through Whangārei Town Basin during a checkpoint challenge"
           />
         </div>
       </section>
@@ -83,26 +89,26 @@ export default function App() {
       {/* Styles */}
       <section id="styles" className="bg-white border-y border-slate-200">
         <div className="mx-auto max-w-6xl px-4 py-14">
-          <h2 className="text-2xl md:text-3xl font-bold">Two signature race styles</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Two race styles</h2>
           <div className="mt-8 grid md:grid-cols-2 gap-6">
             <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h3 className="text-xl font-semibold">Adventure Race - Whangārei Town Basin</h3>
+              <h3 className="text-xl font-semibold tracking-tight">Adventure Race — Town Basin</h3>
               <ul className="mt-4 space-y-2 text-slate-700 list-disc pl-5">
                 <li>Physical, mental, and creative challenges</li>
                 <li>Bonus points for best photo, team spirit, or time</li>
-                <li>Ideal for corporate teams and work socials</li>
+                <li>Great for team days and end-of-year functions</li>
               </ul>
-              <a href="#contact" className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-sm font-medium hover:bg-emerald-700">Book this</a>
+              <a href="#contact" className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-sm font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600">Book this</a>
             </article>
             <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h3 className="text-xl font-semibold">The Curious Case of the Compass Rose</h3>
+              <h3 className="text-xl font-semibold tracking-tight">The Curious Case of the Compass Rose</h3>
               <ul className="mt-4 space-y-2 text-slate-700 list-disc pl-5">
-                <li>Puzzle based checkpoints and riddles</li>
-                <li>No Google Maps allowed. Lose points if you try</li>
+                <li>Puzzle-based checkpoints and riddles</li>
+                <li>No Google Maps. Lose points if you try</li>
                 <li>Hidden clues lead to a final location and codeword</li>
-                <li>Perfect for leadership teams, adult school groups, and puzzle lovers</li>
+                <li>Ideal for leadership teams and puzzle lovers</li>
               </ul>
-              <a href="#contact" className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-sm font-medium hover:bg-emerald-700">Book this</a>
+              <a href="#contact" className="mt-6 inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-sm font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-600">Book this</a>
             </article>
           </div>
         </div>
@@ -112,7 +118,7 @@ export default function App() {
       <section id="inclusions" className="bg-white">
         <div className="mx-auto max-w-6xl px-4 py-14 grid md:grid-cols-2 gap-6">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl md:text-3xl font-bold">Included in every race</h2>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Included</h2>
             <ul className="mt-4 space-y-2 text-slate-700 list-disc pl-5">
               <li>2 hours of tailored challenges</li>
               <li>Race facilitation and support from our coordinator</li>
@@ -121,13 +127,13 @@ export default function App() {
             </ul>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-2xl md:text-3xl font-bold">Add-ons (additional cost)</h2>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Add-ons</h2>
             <ul className="mt-4 space-y-2 text-slate-700 list-disc pl-5">
               <li>Catering</li>
-              <li>Medals/Awards</li>
-              <li>Photography or Videography</li>
-              <li>Team Merch</li>
-              <li>Bespoke Custom Race</li>
+              <li>Medals and awards</li>
+              <li>Photography or videography</li>
+              <li>Team merchandise</li>
+              <li>Bespoke custom race</li>
             </ul>
           </div>
         </div>
@@ -137,17 +143,17 @@ export default function App() {
       <section id="locations" className="bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-14 grid md:grid-cols-2 gap-10 items-start">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold">Locations</h2>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Locations</h2>
             <ul className="mt-4 space-y-2 text-slate-700 list-disc pl-5">
               <li>Whangārei Town Basin loop with easy parking</li>
               <li>Northland wide by arrangement</li>
             </ul>
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold">Who it is for</h2>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Who it is for</h2>
             <ul className="mt-4 space-y-2 text-slate-700 list-disc pl-5">
               <li>Corporate teams wanting to bond, energise, or celebrate</li>
-              <li>Staff planning days or end of year functions</li>
+              <li>Staff planning days or end-of-year functions</li>
               <li>Youth leadership groups or intermediate students</li>
               <li>Any group ready to explore, compete, and laugh</li>
             </ul>
@@ -158,12 +164,18 @@ export default function App() {
       {/* Contact and Quote form */}
       <section id="contact" className="bg-white">
         <div className="mx-auto max-w-3xl px-4 py-16">
-          <h2 className="text-2xl md:text-3xl font-bold">Ready to race</h2>
-          <p className="mt-2 text-slate-700">Tell us about your team and preferred date. We tailor the experience and send a quote.</p>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Ready to race</h2>
+          <p className="mt-2 text-slate-700 max-w-prose">
+            Tell us about your team and preferred date. We tailor the experience and send a quote.
+          </p>
 
           <div className="mt-2 text-slate-700 text-sm">
-            Prefer to talk? Call <a href="tel:64225155501" className="underline">022 515 5501</a> or email <a href="mailto:Kiaora@northlandadventurerace.co.nz" className="underline">Kiaora@northlandadventurerace.co.nz</a>.
+            Prefer to talk? Call <a href="tel:64225155501" className="underline">022 515 5501</a> or email{" "}
+            <a href="mailto:kiaora@northlandadventurerace.co.nz" className="underline">kiaora@northlandadventurerace.co.nz</a>.
           </div>
+
+          {/* live region for status messages */}
+          <p className="sr-only" aria-live="polite">{status}</p>
 
           <form
             action={WEB3FORMS_ENDPOINT}
@@ -226,7 +238,7 @@ export default function App() {
               <button
                 type="submit"
                 disabled={sending || sent}
-                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-medium shadow hover:bg-emerald-700 disabled:opacity-60"
+                className="inline-flex items-center rounded-xl bg-emerald-600 px-5 py-3 text-white font-semibold shadow hover:bg-emerald-700 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-emerald-600"
               >
                 {sending ? "Sending…" : sent ? "Sent ✓" : "Send enquiry"}
               </button>
@@ -236,6 +248,10 @@ export default function App() {
                 </p>
               )}
             </div>
+
+            <p className="mt-2 text-xs text-slate-500">
+              We reply within one business day. Your details stay with us.
+            </p>
           </form>
         </div>
       </section>
@@ -257,7 +273,7 @@ function Input({ label, className = "", ...props }) {
       <span className="text-sm font-medium text-slate-800">{label}</span>
       <input
         {...props}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
       />
     </label>
   );
@@ -270,7 +286,7 @@ function Textarea({ label, className = "", ...props }) {
       <textarea
         {...props}
         rows={5}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
       />
     </label>
   );
@@ -282,7 +298,7 @@ function Select({ label, className = "", children, ...props }) {
       <span className="text-sm font-medium text-slate-800">{label}</span>
       <select
         {...props}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
       >
         {children}
       </select>
