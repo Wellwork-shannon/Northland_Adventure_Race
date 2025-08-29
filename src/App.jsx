@@ -29,6 +29,98 @@ export default function App() {
     }
   }, []);
 
+  // SEO and structured data injection (no UI changes)
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const title =
+      "Northland Adventure Race | Team building in Whangārei and Northland";
+    const description =
+      "Amazing Race style team building in Whangārei and Northland. A two-hour on-foot adventure race for corporate teams, leadership groups, and Christmas parties.";
+    const canonical = "https://www.northlandadventurerace.co.nz/";
+    const ogImage = "/og.jpg";
+
+    // helper to create or update tags
+    function upsert(tag, attrs) {
+      const selector = Object.entries(attrs)
+        .map(([k, v]) => `[${k}="${v}"]`)
+        .join("");
+      let el =
+        document.head.querySelector(`${tag}${selector}`) ||
+        document.createElement(tag);
+      Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+      if (!el.parentNode) document.head.appendChild(el);
+      return el;
+    }
+
+    document.title = title;
+    upsert("link", { rel: "canonical", href: canonical });
+
+    // Basic meta
+    let metaDesc = document.head.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.setAttribute("name", "description");
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute("content", description);
+
+    // Open Graph
+    upsert("meta", { property: "og:type", content: "website" });
+    upsert("meta", { property: "og:url", content: canonical });
+    upsert("meta", { property: "og:title", content: title });
+    upsert("meta", { property: "og:description", content: description });
+    upsert("meta", { property: "og:image", content: ogImage });
+
+    // Twitter
+    upsert("meta", { name: "twitter:card", content: "summary_large_image" });
+    upsert("meta", { name: "twitter:title", content: title });
+    upsert("meta", { name: "twitter:description", content: description });
+    upsert("meta", { name: "twitter:image", content: ogImage });
+
+    // Keywords to help initial discovery (Google largely ignores, but harmless)
+    const keywords =
+      "Northland team building, Northland adventure, northland race, northland adventure race, Whangarei race, Whangarei Christmas party, Whangarei Christmas do, adventure race, amazing race northland, amazing race new zealand, fun christmas do";
+    let metaKeywords = document.head.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement("meta");
+      metaKeywords.setAttribute("name", "keywords");
+      document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute("content", keywords);
+
+    // LocalBusiness JSON-LD with region-level address (no street address shown)
+    const ld = {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: "Northland Adventure Race",
+      url: canonical,
+      image: canonical + "og.jpg",
+      telephone: "+64 22 515 5501",
+      email: "kiaora@northlandadventurerace.co.nz",
+      description:
+        "Amazing Race style team building in Whangārei and Northland. Two-hour on-foot adventure race for corporate teams and Christmas parties.",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Whangārei",
+        addressRegion: "Northland",
+        addressCountry: "NZ",
+      },
+      areaServed: ["Whangārei", "Northland", "New Zealand"],
+    };
+
+    let ldScript = document.getElementById("ld-localbusiness");
+    if (!ldScript) {
+      ldScript = document.createElement("script");
+      ldScript.type = "application/ld+json";
+      ldScript.id = "ld-localbusiness";
+      document.head.appendChild(ldScript);
+    }
+    ldScript.textContent = JSON.stringify(ld);
+
+    // Cleanup not required since we want tags persistent across route changes
+  }, []);
+
   // When the form is submitted, we let the browser do a normal POST.
   // We only flip the button to "Sending…" immediately so the user gets feedback.
   function handleNativeSubmit() {
