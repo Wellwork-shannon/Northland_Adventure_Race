@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 
 /**
@@ -46,7 +48,7 @@ export default function Site() {
     try {
       const fd = new FormData(e.currentTarget);
 
-      // Honeypot check. If filled, treat as spam and stop.
+      // Honeypot. If filled, treat as spam and stop.
       if (fd.get("botcheck")) {
         throw new Error("Spam detected");
       }
@@ -61,7 +63,7 @@ export default function Site() {
       const addons = fd.getAll("addons");
       fd.append("AddOnsSummary", addons.join(", "));
 
-      // Human readable summary stays the same
+      // Human readable summary
       const est = computeEstimateStrict(parseInt(fd.get("GroupSize") || "0", 10));
       const note = [
         `Name: ${fd.get("Name") || ""}`,
@@ -234,7 +236,7 @@ export default function Site() {
           <h2 className="text-2xl md:text-3xl font-bold">Ready to race</h2>
           <p className="mt-2 text-slate-700">Tell us about your team and preferred date. We tailor the experience and send a quote.</p>
 
-          {/* live estimate */}
+        {/* live estimate */}
           <p className="mt-3 text-slate-700">
             Pricing: $110 per person. Minimum 10 participants. Smaller teams may be available on request.
             {estimate ? (<><span> | Estimated total (excludes add-ons): ${estimate} NZD</span></>) : null}
@@ -251,13 +253,13 @@ export default function Site() {
             onSubmit={handleSubmit}
             className="mt-6 grid grid-cols-1 gap-4"
           >
-            {/* Honeypot field for spam prevention */}
+            {/* Honeypot for spam prevention */}
             <input
-              type="checkbox"
+              type="text"
               name="botcheck"
-              tabIndex="-1"
               autoComplete="off"
               className="hidden"
+              tabIndex={-1}
             />
 
             <div className="grid md:grid-cols-2 gap-4">
@@ -333,4 +335,41 @@ export default function Site() {
 }
 
 // Small form helpers
-functio
+function Input({ label, className = "", ...props }) {
+  return (
+    <label className={`block ${className}`}>
+      <span className="text-sm font-medium text-slate-800">{label}</span>
+      <input
+        {...props}
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+    </label>
+  );
+}
+
+function Textarea({ label, className = "", ...props }) {
+  return (
+    <label className={`block ${className}`}>
+      <span className="text-sm font-medium text-slate-800">{label}</span>
+      <textarea
+        {...props}
+        rows={5}
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      />
+    </label>
+  );
+}
+
+function Select({ label, className = "", children, ...props }) {
+  return (
+    <label className={`block ${className}`}>
+      <span className="text-sm font-medium text-slate-800">{label}</span>
+      <select
+        {...props}
+        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      >
+        {children}
+      </select>
+    </label>
+  );
+}
