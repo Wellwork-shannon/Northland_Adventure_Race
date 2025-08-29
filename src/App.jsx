@@ -2,15 +2,12 @@ import React, { useMemo, useState } from "react";
 
 /**
  * Northland Adventure Race - One-page React component
- * - Add-ons clarified as additional cost
- * - No bold in pricing or SEO helper text
- * - Contact number and email beside the enquiry form
- * - Locations button in header and hero
- * - Uses current hero image at /publichero.jpg
+ * Web3Forms version
  */
 
-// Formspree endpoint
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/xovnqrbz";
+// Web3Forms
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+const WEB3FORMS_ACCESS_KEY = "f8b31566-8614-4321-9b57-09f40a9a2387";
 
 // Price helper with tests
 export function computeEstimateStrict(n) {
@@ -45,17 +42,26 @@ export default function Site() {
     e.preventDefault();
     setSending(true);
     setStatus("");
+
     try {
       const fd = new FormData(e.currentTarget);
+
+      // Honeypot check. If filled, treat as spam and stop.
+      if (fd.get("botcheck")) {
+        throw new Error("Spam detected");
+      }
+
+      // Required for Web3Forms
+      fd.append("access_key", WEB3FORMS_ACCESS_KEY);
+
+      // Optional subject for your email
+      fd.append("subject", "New Northland Adventure Race enquiry");
 
       // Collect add-ons into a single field for readability
       const addons = fd.getAll("addons");
       fd.append("AddOnsSummary", addons.join(", "));
 
-      // Optional subject shown in Formspree notifications
-      fd.append("_subject", "New Northland Adventure Race enquiry");
-
-      // Human readable summary
+      // Human readable summary stays the same
       const est = computeEstimateStrict(parseInt(fd.get("GroupSize") || "0", 10));
       const note = [
         `Name: ${fd.get("Name") || ""}`,
@@ -72,22 +78,22 @@ export default function Site() {
       ].join("\n");
       fd.append("Summary", note);
 
-      // Send to Formspree
-      const resp = await fetch(FORMSPREE_ENDPOINT, {
+      // Send to Web3Forms
+      const resp = await fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
-        headers: { Accept: "application/json" },
         body: fd,
+        headers: { Accept: "application/json" },
       });
 
-      let data;
+      let json;
       try {
-        data = await resp.json();
+        json = await resp.json();
       } catch {
-        throw new Error(`Formspree response ${resp.status}`);
+        throw new Error(`Web3Forms response ${resp.status}`);
       }
 
-      if (!resp.ok || !data?.ok) {
-        const msg = data?.errors?.[0]?.message || "Send failed. Please try again.";
+      if (!json?.success) {
+        const msg = json?.body?.message || json?.message || "Send failed. Please try again.";
         throw new Error(msg);
       }
 
@@ -240,11 +246,20 @@ export default function Site() {
           </div>
 
           <form
-            action={FORMSPREE_ENDPOINT}
+            action={WEB3FORMS_ENDPOINT}
             method="POST"
             onSubmit={handleSubmit}
             className="mt-6 grid grid-cols-1 gap-4"
           >
+            {/* Honeypot field for spam prevention */}
+            <input
+              type="checkbox"
+              name="botcheck"
+              tabIndex="-1"
+              autoComplete="off"
+              className="hidden"
+            />
+
             <div className="grid md:grid-cols-2 gap-4">
               <Input name="Name" label="Your name" required />
               <Input name="Company" label="Company or group" />
@@ -318,41 +333,4 @@ export default function Site() {
 }
 
 // Small form helpers
-function Input({ label, className = "", ...props }) {
-  return (
-    <label className={`block ${className}`}>
-      <span className="text-sm font-medium text-slate-800">{label}</span>
-      <input
-        {...props}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-      />
-    </label>
-  );
-}
-
-function Textarea({ label, className = "", ...props }) {
-  return (
-    <label className={`block ${className}`}>
-      <span className="text-sm font-medium text-slate-800">{label}</span>
-      <textarea
-        {...props}
-        rows={5}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-      />
-    </label>
-  );
-}
-
-function Select({ label, className = "", children, ...props }) {
-  return (
-    <label className={`block ${className}`}>
-      <span className="text-sm font-medium text-slate-800">{label}</span>
-      <select
-        {...props}
-        className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-      >
-        {children}
-      </select>
-    </label>
-  );
-}
+functio
