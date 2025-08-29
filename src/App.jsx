@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 
 /**
@@ -7,11 +5,10 @@ import React, { useState } from "react";
  * Web3Forms version (no estimated total, success UI, SEO text removed)
  */
 
-// Web3Forms
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 const WEB3FORMS_ACCESS_KEY = "f8b31566-8614-4321-9b57-09f40a9a2387";
 
-export default function Site() {
+export default function App() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [status, setStatus] = useState("");
@@ -30,7 +27,7 @@ export default function Site() {
       // Honeypot
       if (fd.get("botcheck")) throw new Error("Spam detected");
 
-      // Ensure access key is present for safety
+      // Ensure access key
       if (!fd.get("access_key")) fd.append("access_key", WEB3FORMS_ACCESS_KEY);
 
       // Helpful aliases
@@ -42,7 +39,7 @@ export default function Site() {
       const addons = fd.getAll("addons");
       fd.append("AddOnsSummary", addons.join(", "));
 
-      // Human summary (no estimate line)
+      // Human summary
       const note = [
         `Name: ${fd.get("Name") || ""}`,
         `Company: ${fd.get("Company") || ""}`,
@@ -65,7 +62,7 @@ export default function Site() {
 
       const raw = await resp.text();
       let json = null;
-      try { json = JSON.parse(raw); } catch { /* non-JSON is fine if HTTP is OK */ }
+      try { json = JSON.parse(raw); } catch {}
 
       const ok = resp.ok && (json?.success !== false);
       if (!ok) {
@@ -82,29 +79,4 @@ export default function Site() {
       setStatusKind("error");
       setStatus(
         err instanceof Error && err.message
-          ? err.message
-          : "Sorry, something went wrong. Please try again or call 022 515 5501."
-      );
-    } finally {
-      setSending(false);
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-white text-slate-900">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
-        <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <a href="#hero" className="font-semibold">Northland Adventure Race</a>
-          <nav className="hidden md:flex gap-6 text-sm">
-            <a href="#styles" className="hover:text-emerald-600">Race Styles</a>
-            <a href="#inclusions" className="hover:text-emerald-600">Inclusions</a>
-            <a href="#locations" className="hover:text-emerald-600">Locations</a>
-            <a href="#contact" className="hover:text-emerald-600">Contact</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <a href="#locations" className="inline-flex items-center rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium hover:bg-white">Locations</a>
-            <a href="#contact" className="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-white text-sm font-medium shadow hover:bg-emerald-700">Plan your race</a>
-          </div>
-        </div>
-      </head
+          ? err
